@@ -16,7 +16,8 @@ public class InstagramQuery {
     private Long taken_at_timestamp;
     private long userId;
     private Long fileId;
-    private Long addressId;
+    private Long locationId;
+    private String locationName;
     private String mark;
     private String remark;
     private Integer isChild;
@@ -110,13 +111,23 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="ADDRESS_ID")
-    public Long getAddressId() {
-        return addressId;
+    @Column(name="LOCATION_ID")
+    public Long getLocationId() {
+        return locationId;
     }
 
-    public void setAddressId(Long addressId) {
-        this.addressId = addressId;
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
+    }
+
+    @Basic
+    @Column(name="LOCATION_NAME")
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     @Basic

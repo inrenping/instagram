@@ -4,7 +4,7 @@ import java.util.List;
 
 public class EdgeOwnerToTimelineMedia {
     public Integer count;
-    public PageInfo page_info;
+    public PageInfo_ page_info;
     public List<Edge_> edges;
 
     public Integer getCount() {
@@ -15,11 +15,11 @@ public class EdgeOwnerToTimelineMedia {
         this.count = count;
     }
 
-    public PageInfo getPage_info() {
+    public PageInfo_ getPage_info() {
         return page_info;
     }
 
-    public void setPage_info(PageInfo page_info) {
+    public void setPage_info(PageInfo_ page_info) {
         this.page_info = page_info;
     }
 

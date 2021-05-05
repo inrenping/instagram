@@ -1,6 +1,6 @@
 package com.inrenping.instagram.entity.response;
 
-public class PageInfo {
+public class PageInfo_ {
     public Boolean has_next_page;
     public String end_cursor;
 

@@ -15,12 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.*;
 
 @Service
@@ -29,6 +27,8 @@ public class VultrServiceImpl implements IVultrService {
 
     @Value("${instagram.query_id}")
     private String instagram_query_id;
+    @Value("${instagram.query_hash}")
+    private String instagram_query_hash;
     @Value("${instagram.id}")
     private String instagram_id;
     @Value("${instagram.cookie}")
@@ -38,10 +38,6 @@ public class VultrServiceImpl implements IVultrService {
 
     @Autowired
     InstagramQueryRepository instagramQueryRepository;
-
-    @Autowired
-    InstagramFileReposity instagramFileReposity;
-
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -55,6 +51,7 @@ public class VultrServiceImpl implements IVultrService {
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
+            System.out.println(uri);
             ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception ex) {
@@ -77,7 +74,8 @@ public class VultrServiceImpl implements IVultrService {
                 query.setShort_code(edge.getNode().getShortcode());
                 query.setDisplay_url(edge.getNode().getDisplay_url());
                 if (edge.getNode().getLocation() != null) {
-                    query.setAddressId(edge.getNode().getLocation().getId());
+                    query.setLocationId(edge.getNode().getLocation().getId());
+                    query.setLocationName(edge.getNode().getLocation().getName());
                 }
                 query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
                 query.setEndCursor(firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
@@ -117,14 +115,20 @@ public class VultrServiceImpl implements IVultrService {
     public String secondFetch(String end_cursor) {
         try {
             RestTemplate client = new RestTemplate();
-            String uri = String.format("https://instagram.com/graphql/query/?query_id=%s&id=%s&first=50&after=%s", instagram_query_id, instagram_id, end_cursor);
+            String uri = String.format("https://instagram.com/graphql/query/");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
+                    .queryParam("query_id", instagram_query_id)
+                    .queryParam("id", instagram_id)
+                    .queryParam("first", 50)
+                    .queryParam("after", end_cursor);
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class);
+            System.out.println(builder.toUriString());
+            ResponseEntity<String> response = client.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -145,7 +149,8 @@ public class VultrServiceImpl implements IVultrService {
             query.setShort_code(edge.getNode().getShortcode());
             query.setDisplay_url(edge.getNode().getDisplay_url());
             if (edge.getNode().getLocation() != null) {
-                query.setAddressId(edge.getNode().getLocation().getId());
+                query.setLocationId(edge.getNode().getLocation().getId());
+                query.setLocationName(edge.getNode().getLocation().getName());
             }
             query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
             query.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
@@ -154,26 +159,58 @@ public class VultrServiceImpl implements IVultrService {
             query.setIsChild(0);
             InstagramQuery result = instagramQueryRepository.save(query);
             System.out.println(JSON.toJSONString(result));
-            if (edge.getNode().getEdge_sidecar_to_children() != null) {
-                for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
-                    InstagramQuery query_c = new InstagramQuery();
-                    query_c.setUserId(Long.parseLong(instagram_id));
-                    query_c.setType_name(edge_child.getNode().get__typename());
-                    query_c.setInsId(edge_child.getNode().getId());
-                    query_c.setShort_code(edge_child.getNode().getShortcode());
-                    query_c.setDisplay_url(edge_child.getNode().getDisplay_url().replace("\\u0026", "&"));
-                    query_c.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
-                    query_c.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
-                    query_c.setCreatetime(new Date());
-                    query_c.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
-                    query_c.setIsChild(1);
-                    instagramQueryRepository.save(query_c);
-                    InstagramQuery result_c = instagramQueryRepository.save(query_c);
-                    System.out.println(JSON.toJSONString(result_c));
-                }
-            }
+//            // cant get getEdge_sidecar_to_children --!
+//            if (edge.getNode().getEdge_sidecar_to_children() != null) {
+//                for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
+//                    InstagramQuery query_c = new InstagramQuery();
+//                    query_c.setUserId(Long.parseLong(instagram_id));
+//                    query_c.setType_name(edge_child.getNode().get__typename());
+//                    query_c.setInsId(edge_child.getNode().getId());
+//                    query_c.setShort_code(edge_child.getNode().getShortcode());
+//                    query_c.setDisplay_url(edge_child.getNode().getDisplay_url().replace("\\u0026", "&"));
+//                    query_c.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
+//                    query_c.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
+//                    query_c.setCreatetime(new Date());
+//                    query_c.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
+//                    query_c.setIsChild(1);
+//                    instagramQueryRepository.save(query_c);
+//                    InstagramQuery result_c = instagramQueryRepository.save(query_c);
+//                    System.out.println(JSON.toJSONString(result_c));
+//                }
+//            }
         }
         return secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String thirdFetch(String shortcode) {
+        try {
+            RestTemplate client = new RestTemplate();
+            String uri = "https://www.instagram.com/graphql/query/";
+            Map<String, String> shortCodeParam =new HashMap<String,String>();
+            shortCodeParam.put("shortcode",shortcode);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
+                    .queryParam("query_hash", instagram_query_hash)
+                    .queryParam("variables", JSON.toJSONString(shortCodeParam));
+            HttpHeaders headers = new HttpHeaders();
+            List<String> cookies = new ArrayList<>();
+            cookies.add(instagram_cookie);
+            headers.add("User-Agent", instagram_user_agent);
+            headers.put(HttpHeaders.COOKIE, cookies);
+            HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
+            System.out.println(builder.toUriString());
+            ResponseEntity<String> response = client.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+            return response.getBody();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ex.toString();
+        }
+    }
+
+    @Override
+    public String thirdFetchWithUpdate(String shortcode) {
+        return "";
     }
 
     @Override
@@ -202,7 +239,7 @@ public class VultrServiceImpl implements IVultrService {
                 System.out.println(file.getName());
                 Thread.sleep(1000 * 3);
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return ex.toString();
         }
@@ -219,7 +256,7 @@ public class VultrServiceImpl implements IVultrService {
             httpURLConnection.setRequestProperty("Charset", "UTF-8");
             httpURLConnection.connect();
             BufferedInputStream bin = new BufferedInputStream(httpURLConnection.getInputStream());
-            String path = "/tmp/instagram" + File.separatorChar + fileName;
+            String path = "/var/www/instagram/files/" + File.separatorChar + fileName;
             // String path = "D:\\instagram" + File.separatorChar + fileName;
             file = new File(path);
             if (!file.getParentFile().exists()) {
@@ -238,6 +275,7 @@ public class VultrServiceImpl implements IVultrService {
             System.out.println("文件下载成功！");
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
+            System.out.println("文件下载失败！");
             e.printStackTrace();
         } catch (IOException e) {
             // TODO Auto-generated catch block

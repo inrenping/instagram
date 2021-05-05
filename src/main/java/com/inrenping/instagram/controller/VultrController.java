@@ -43,34 +43,12 @@ public class VultrController {
         }
     }
 
-    /**
-     *
-     * @param end_cursor
-     * @return
-     */
     @RequestMapping(value = "/secondfetchquery", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
     public String secondFetchQuery(@RequestParam(name = "end_cursor") String end_cursor) {
         try {
             String result = vultrService.secondFetch(end_cursor);
-            return result;
-        } catch (Exception e) {
-            return e.toString();
-        }
-    }
-
-    /**
-     * 循环调用
-     * @param end_cursor
-     * @return
-     */
-    @RequestMapping(value = "/recursionfetchquerywithupdate", method = RequestMethod.GET)
-    @ResponseBody
-    @CrossOrigin(value = "*")
-    public String recursionFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor) {
-        try {
-            String result= vultrService.recursionFetchQueryWithUpdate(end_cursor);
             return result;
         } catch (Exception e) {
             return e.toString();
@@ -88,6 +66,31 @@ public class VultrController {
             return e.toString();
         }
     }
+
+    @RequestMapping(value = "/thirdfetchquery", method = RequestMethod.GET)
+    @ResponseBody
+    @CrossOrigin(value = "*")
+    public String thirdFetchQuery(@RequestParam(name = "shortcode") String shortcode){
+        try {
+            String result= vultrService.thirdFetch(shortcode);
+            return result;
+        } catch (Exception e) {
+            return e.toString();
+        }
+    }
+
+    @RequestMapping(value = "/recursionfetchquerywithupdate", method = RequestMethod.GET)
+    @ResponseBody
+    @CrossOrigin(value = "*")
+    public String recursionFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor) {
+        try {
+            String result= vultrService.recursionFetchQueryWithUpdate(end_cursor);
+            return result;
+        } catch (Exception e) {
+            return e.toString();
+        }
+    }
+
 
     @RequestMapping(value = "/download", method = RequestMethod.GET)
     @ResponseBody

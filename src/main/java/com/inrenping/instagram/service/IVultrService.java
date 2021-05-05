@@ -28,6 +28,10 @@ public interface IVultrService {
      */
     String secondFetchWithUpdate(String end_cursor);
 
+    String thirdFetch(String shortcode);
+
+    String thirdFetchWithUpdate(String shortcode);
+
     /**
      * 自动翻页获取并写入
      * @param end_cursor

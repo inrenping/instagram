@@ -1,23 +1,14 @@
 package com.inrenping.instagram.entity.response;
 
-public class Node {
-    public Long id;
+public class ShortCodeMedia {
     public String __typename;
+    public Long id;
     public String shortcode;
     public String display_url;
-
-    public Long taken_at_timestamp;
-    public Location location;
+    public String tracking_token;
     public EdgeMediaPreviewLike edge_media_preview_like;
+    public Location location;
     public EdgeSidecarToChildren edge_sidecar_to_children;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String get__typename() {
         return __typename;
@@ -25,6 +16,14 @@ public class Node {
 
     public void set__typename(String __typename) {
         this.__typename = __typename;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getShortcode() {
@@ -43,20 +42,12 @@ public class Node {
         this.display_url = display_url;
     }
 
-    public Long getTaken_at_timestamp() {
-        return taken_at_timestamp;
+    public String getTracking_token() {
+        return tracking_token;
     }
 
-    public void setTaken_at_timestamp(Long taken_at_timestamp) {
-        this.taken_at_timestamp = taken_at_timestamp;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setTracking_token(String tracking_token) {
+        this.tracking_token = tracking_token;
     }
 
     public EdgeMediaPreviewLike getEdge_media_preview_like() {
@@ -65,6 +56,14 @@ public class Node {
 
     public void setEdge_media_preview_like(EdgeMediaPreviewLike edge_media_preview_like) {
         this.edge_media_preview_like = edge_media_preview_like;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public EdgeSidecarToChildren getEdge_sidecar_to_children() {

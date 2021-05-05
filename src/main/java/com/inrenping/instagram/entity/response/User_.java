@@ -1,6 +1,6 @@
 package com.inrenping.instagram.entity.response;
 
-public class User {
+public class User_ {
     public EdgeOwnerToTimelineMedia edge_owner_to_timeline_media;
 
     public EdgeOwnerToTimelineMedia getEdge_owner_to_timeline_media() {
