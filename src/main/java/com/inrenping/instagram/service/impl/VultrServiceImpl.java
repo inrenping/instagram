@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.net.*;
@@ -23,7 +22,6 @@ import java.util.*;
 
 @Service
 public class VultrServiceImpl implements IVultrService {
-
 
     @Value("${instagram.query_id}")
     private String instagram_query_id;
@@ -115,20 +113,19 @@ public class VultrServiceImpl implements IVultrService {
     public String secondFetch(String end_cursor) {
         try {
             RestTemplate client = new RestTemplate();
-            String uri = String.format("https://instagram.com/graphql/query/");
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
-                    .queryParam("query_id", instagram_query_id)
-                    .queryParam("id", instagram_id)
-                    .queryParam("first", 50)
-                    .queryParam("after", end_cursor);
-            HttpHeaders headers = new HttpHeaders();
+            String uri = "https://instagram.com/graphql/query/?query_id={query_id}&id={id}&first={first}&after={after}";
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
+            HttpHeaders headers = new HttpHeaders();
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
-            HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-            System.out.println(builder.toUriString());
-            ResponseEntity<String> response = client.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("query_id", instagram_query_id);
+            params.put("id", instagram_id);
+            params.put("first", 50);
+            params.put("after", end_cursor);
+            HttpEntity entity = new HttpEntity("", headers);
+            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class,params);
             return response.getBody();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -187,20 +184,19 @@ public class VultrServiceImpl implements IVultrService {
     public String thirdFetch(String shortcode) {
         try {
             RestTemplate client = new RestTemplate();
-            String uri = "https://www.instagram.com/graphql/query/";
+            String uri = "https://www.instagram.com/graphql/query/?query_hash={query_hash}&variables={variables}";
             Map<String, String> shortCodeParam =new HashMap<String,String>();
             shortCodeParam.put("shortcode",shortcode);
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(uri)
-                    .queryParam("query_hash", instagram_query_hash)
-                    .queryParam("variables", JSON.toJSONString(shortCodeParam));
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
-            HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
-            System.out.println(builder.toUriString());
-            ResponseEntity<String> response = client.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("query_hash",instagram_query_hash);
+            params.put("variables", JSON.toJSONString(shortCodeParam));
+            HttpEntity entity = new HttpEntity("", headers);
+            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class,params);
             return response.getBody();
         } catch (Exception ex) {
             ex.printStackTrace();
