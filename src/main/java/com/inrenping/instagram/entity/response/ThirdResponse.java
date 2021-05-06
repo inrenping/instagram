@@ -1,13 +1,13 @@
 package com.inrenping.instagram.entity.response;
 
 public class ThirdResponse {
-    public ThirdResponseData data;
+    public GrapHql_ graphql;
 
-    public ThirdResponseData getData() {
-        return data;
+    public GrapHql_ getGraphql() {
+        return graphql;
     }
 
-    public void setData(ThirdResponseData data) {
-        this.data = data;
+    public void setGraphql(GrapHql_ graphql) {
+        this.graphql = graphql;
     }
 }

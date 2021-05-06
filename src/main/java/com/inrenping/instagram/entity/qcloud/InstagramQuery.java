@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Entity
-@Table(name="T_INSTAGRAM_QUERY")
+@Table(name = "T_INSTAGRAM_QUERY")
 public class InstagramQuery {
 
     private long id;
@@ -30,7 +30,7 @@ public class InstagramQuery {
     private Integer day;
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     public long getId() {
         return id;
@@ -41,7 +41,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="INS_ID")
+    @Column(name = "INS_ID")
     public long getInsId() {
         return insId;
     }
@@ -51,7 +51,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="TYPE_NAME")
+    @Column(name = "TYPE_NAME")
     public String getType_name() {
         return type_name;
     }
@@ -61,7 +61,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="SHORT_CODE")
+    @Column(name = "SHORT_CODE")
     public String getShort_code() {
         return short_code;
     }
@@ -71,7 +71,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="DISPLAY_URL")
+    @Column(name = "DISPLAY_URL")
     public String getDisplay_url() {
         return display_url;
     }
@@ -81,7 +81,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="TAKEN_AT_TIMESTAMP")
+    @Column(name = "TAKEN_AT_TIMESTAMP")
     public Long getTaken_at_timestamp() {
         return taken_at_timestamp;
     }
@@ -91,7 +91,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="USER_ID")
+    @Column(name = "USER_ID")
     public long getUserId() {
         return userId;
     }
@@ -101,7 +101,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="FILE_ID")
+    @Column(name = "FILE_ID")
     public Long getFileId() {
         return fileId;
     }
@@ -111,7 +111,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="LOCATION_ID")
+    @Column(name = "LOCATION_ID")
     public Long getLocationId() {
         return locationId;
     }
@@ -121,7 +121,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="LOCATION_NAME")
+    @Column(name = "LOCATION_NAME")
     public String getLocationName() {
         return locationName;
     }
@@ -131,7 +131,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="MARK")
+    @Column(name = "MARK")
     public String getMark() {
         return mark;
     }
@@ -141,7 +141,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="REMARK")
+    @Column(name = "REMARK")
     public String getRemark() {
         return remark;
     }
@@ -151,7 +151,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="ISCHILD")
+    @Column(name = "ISCHILD")
     public Integer getIsChild() {
         return isChild;
     }
@@ -161,7 +161,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="CREATETIME")
+    @Column(name = "CREATETIME")
     public Date getCreatetime() {
         return createtime;
     }
@@ -171,7 +171,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="END_CURSOR")
+    @Column(name = "END_CURSOR")
     public String getEndCursor() {
         return endCursor;
     }
@@ -181,7 +181,7 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name="LIKE_COUNT")
+    @Column(name = "LIKE_COUNT")
     public Integer getLikeCount() {
         return likeCount;
     }
@@ -192,9 +192,9 @@ public class InstagramQuery {
 
     @Transient
     public Integer getYear() {
-        Date date = new Date(this.taken_at_timestamp*1000L);
-        Calendar cal = Calendar. getInstance();
-        cal. setTime(date);
+        Date date = new Date(this.taken_at_timestamp * 1000L);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
         return cal.get(Calendar.YEAR);
     }
 
@@ -204,9 +204,9 @@ public class InstagramQuery {
 
     @Transient
     public Integer getMonth() {
-        Date date = new Date(this.taken_at_timestamp*1000L);
-        Calendar cal = Calendar. getInstance();
-        cal. setTime(date);
+        Date date = new Date(this.taken_at_timestamp * 1000L);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
         return cal.get(Calendar.MONTH) + 1;
     }
 
@@ -216,9 +216,9 @@ public class InstagramQuery {
 
     @Transient
     public Integer getDay() {
-        Date date = new Date(this.taken_at_timestamp*1000L);
-        Calendar cal = Calendar. getInstance();
-        cal. setTime(date);
+        Date date = new Date(this.taken_at_timestamp * 1000L);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
         return cal.get(Calendar.DAY_OF_MONTH);
     }
 

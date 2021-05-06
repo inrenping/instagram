@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.net.*;
@@ -65,39 +67,41 @@ public class VultrServiceImpl implements IVultrService {
             String first = firstFetch();
             FirstResponse firstResponse = JSONObject.parseObject(first, FirstResponse.class);
             for (Edge_ edge : firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getEdges()) {
-                InstagramQuery query = new InstagramQuery();
-                query.setUserId(Long.parseLong(instagram_id));
-                query.setType_name(edge.getNode().get__typename());
-                query.setInsId(edge.getNode().getId());
-                query.setShort_code(edge.getNode().getShortcode());
-                query.setDisplay_url(edge.getNode().getDisplay_url());
-                if (edge.getNode().getLocation() != null) {
-                    query.setLocationId(edge.getNode().getLocation().getId());
-                    query.setLocationName(edge.getNode().getLocation().getName());
-                }
-                query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
-                query.setEndCursor(firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
-                query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
-                query.setCreatetime(new Date());
-                query.setIsChild(0);
-                InstagramQuery result = instagramQueryRepository.save(query);
-                System.out.println(JSON.toJSONString(result));
-                if (edge.getNode().getEdge_sidecar_to_children() != null) {
-                    for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
-                        InstagramQuery query_c = new InstagramQuery();
-                        query_c.setUserId(Long.parseLong(instagram_id));
-                        query_c.setType_name(edge_child.getNode().get__typename());
-                        query_c.setInsId(edge_child.getNode().getId());
-                        query_c.setShort_code(edge_child.getNode().getShortcode());
-                        query_c.setDisplay_url(edge_child.getNode().getDisplay_url());
-                        query_c.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
-                        query_c.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
-                        query_c.setCreatetime(new Date());
-                        query_c.setEndCursor(firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
-                        query_c.setIsChild(1);
-                        instagramQueryRepository.save(query_c);
-                        InstagramQuery result_c = instagramQueryRepository.save(query_c);
-                        System.out.println(JSON.toJSONString(result_c));
+                if (edge.getNode().get__typename().equals("GraphImage")) {
+                    InstagramQuery query = new InstagramQuery();
+                    query.setUserId(Long.parseLong(instagram_id));
+                    query.setType_name(edge.getNode().get__typename());
+                    query.setInsId(edge.getNode().getId());
+                    query.setShort_code(edge.getNode().getShortcode());
+                    query.setDisplay_url(edge.getNode().getDisplay_url());
+                    if (edge.getNode().getLocation() != null) {
+                        query.setLocationId(edge.getNode().getLocation().getId());
+                        query.setLocationName(edge.getNode().getLocation().getName());
+                    }
+                    query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
+                    query.setEndCursor(firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
+                    query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
+                    query.setCreatetime(new Date());
+                    query.setIsChild(0);
+                    InstagramQuery result = instagramQueryRepository.save(query);
+                    System.out.println(JSON.toJSONString(result));
+                } else if (edge.getNode().get__typename().equals("GraphSidecar")) {
+                    if (edge.getNode().getEdge_sidecar_to_children() != null) {
+                        for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
+                            InstagramQuery query = new InstagramQuery();
+                            query.setUserId(Long.parseLong(instagram_id));
+                            query.setType_name(edge_child.getNode().get__typename());
+                            query.setInsId(edge_child.getNode().getId());
+                            query.setShort_code(edge_child.getNode().getShortcode());
+                            query.setDisplay_url(edge_child.getNode().getDisplay_url());
+                            query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
+                            query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
+                            query.setCreatetime(new Date());
+                            query.setEndCursor(firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
+                            query.setIsChild(1);
+                            InstagramQuery result = instagramQueryRepository.save(query);
+                            System.out.println(JSON.toJSONString(result));
+                        }
                     }
                 }
             }
@@ -112,20 +116,22 @@ public class VultrServiceImpl implements IVultrService {
     @Transactional(rollbackFor = Exception.class)
     public String secondFetch(String end_cursor) {
         try {
+            Thread.sleep(1000 * 10);
             RestTemplate client = new RestTemplate();
-            String uri = "https://instagram.com/graphql/query/?query_id={query_id}&id={id}&first={first}&after={after}";
+            String uri = "https://instagram.com/graphql/query/";
+            UriComponents builder = UriComponentsBuilder.fromHttpUrl(uri)
+                    .queryParam("query_id", instagram_query_id)
+                    .queryParam("id", instagram_id)
+                    .queryParam("first", 50)
+                    .queryParam("after", end_cursor).build();
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
             HttpHeaders headers = new HttpHeaders();
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("query_id", instagram_query_id);
-            params.put("id", instagram_id);
-            params.put("first", 50);
-            params.put("after", end_cursor);
             HttpEntity entity = new HttpEntity("", headers);
-            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class,params);
+            System.out.println(builder.toUriString());
+            ResponseEntity<String> response = client.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -139,42 +145,30 @@ public class VultrServiceImpl implements IVultrService {
         String second = secondFetch(end_cursor);
         SecondResponse secondResponse = JSONObject.parseObject(second, SecondResponse.class);
         for (Edge_ edge : secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getEdges()) {
-            InstagramQuery query = new InstagramQuery();
-            query.setUserId(Long.parseLong(instagram_id));
-            query.setType_name(edge.getNode().get__typename());
-            query.setInsId(edge.getNode().getId());
-            query.setShort_code(edge.getNode().getShortcode());
-            query.setDisplay_url(edge.getNode().getDisplay_url());
-            if (edge.getNode().getLocation() != null) {
-                query.setLocationId(edge.getNode().getLocation().getId());
-                query.setLocationName(edge.getNode().getLocation().getName());
+            System.out.println(edge.getNode().get__typename());
+            if (edge.getNode().get__typename().equals("GraphImage")) {
+                InstagramQuery query = new InstagramQuery();
+                query.setUserId(Long.parseLong(instagram_id));
+                query.setType_name(edge.getNode().get__typename());
+                query.setInsId(edge.getNode().getId());
+                query.setShort_code(edge.getNode().getShortcode());
+                query.setDisplay_url(edge.getNode().getDisplay_url());
+                if (edge.getNode().getLocation() != null) {
+                    query.setLocationId(edge.getNode().getLocation().getId());
+                    query.setLocationName(edge.getNode().getLocation().getName());
+                }
+                query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
+                query.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
+                if (edge.getNode().getEdge_media_preview_like() != null) {
+                    query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
+                }
+                query.setCreatetime(new Date());
+                query.setIsChild(0);
+                instagramQueryRepository.save(query);
+                System.out.println(JSON.toJSONString(query));
+            } else if (edge.getNode().get__typename().equals("GraphSidecar")) {
+                thirdFetchWithUpdate(edge.getNode().getShortcode());
             }
-            query.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
-            query.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
-            query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
-            query.setCreatetime(new Date());
-            query.setIsChild(0);
-            InstagramQuery result = instagramQueryRepository.save(query);
-            System.out.println(JSON.toJSONString(result));
-//            // cant get getEdge_sidecar_to_children --!
-//            if (edge.getNode().getEdge_sidecar_to_children() != null) {
-//                for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
-//                    InstagramQuery query_c = new InstagramQuery();
-//                    query_c.setUserId(Long.parseLong(instagram_id));
-//                    query_c.setType_name(edge_child.getNode().get__typename());
-//                    query_c.setInsId(edge_child.getNode().getId());
-//                    query_c.setShort_code(edge_child.getNode().getShortcode());
-//                    query_c.setDisplay_url(edge_child.getNode().getDisplay_url().replace("\\u0026", "&"));
-//                    query_c.setTaken_at_timestamp(edge.getNode().getTaken_at_timestamp());
-//                    query_c.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
-//                    query_c.setCreatetime(new Date());
-//                    query_c.setEndCursor(secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor());
-//                    query_c.setIsChild(1);
-//                    instagramQueryRepository.save(query_c);
-//                    InstagramQuery result_c = instagramQueryRepository.save(query_c);
-//                    System.out.println(JSON.toJSONString(result_c));
-//                }
-//            }
         }
         return secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor();
     }
@@ -183,20 +177,17 @@ public class VultrServiceImpl implements IVultrService {
     @Transactional(rollbackFor = Exception.class)
     public String thirdFetch(String shortcode) {
         try {
+            // Thread.sleep(1000 * 20);
             RestTemplate client = new RestTemplate();
-            String uri = "https://www.instagram.com/graphql/query/?query_hash={query_hash}&variables={variables}";
-            Map<String, String> shortCodeParam =new HashMap<String,String>();
-            shortCodeParam.put("shortcode",shortcode);
+            String uri = "https://www.instagram.com/p/" + shortcode + "/?__a=1";
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
             headers.add("User-Agent", instagram_user_agent);
             headers.put(HttpHeaders.COOKIE, cookies);
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("query_hash",instagram_query_hash);
-            params.put("variables", JSON.toJSONString(shortCodeParam));
             HttpEntity entity = new HttpEntity("", headers);
-            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class,params);
+            System.out.println(uri);
+            ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -205,22 +196,46 @@ public class VultrServiceImpl implements IVultrService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String thirdFetchWithUpdate(String shortcode) {
-        return "";
+        String third = thirdFetch(shortcode);
+        ThirdResponse thirdResponse = JSONObject.parseObject(third, ThirdResponse.class);
+        if (thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children() != null) {
+            for (Edge_ edge : thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children().getEdges()) {
+                InstagramQuery query = new InstagramQuery();
+                query.setTaken_at_timestamp(thirdResponse.getGraphql().getShortcode_media().getTaken_at_timestamp());
+                query.setUserId(Long.parseLong(instagram_id));
+                query.setType_name(edge.getNode().get__typename());
+                query.setInsId(edge.getNode().getId());
+                query.setShort_code(edge.getNode().getShortcode());
+                query.setDisplay_url(edge.getNode().getDisplay_url());
+                if (edge.getNode().getLocation() != null) {
+                    query.setLocationId(edge.getNode().getLocation().getId());
+                    query.setLocationName(edge.getNode().getLocation().getName());
+                }
+                if (edge.getNode().getEdge_media_preview_like() != null) {
+                    query.setLikeCount(edge.getNode().getEdge_media_preview_like().getCount());
+                }
+                query.setCreatetime(new Date());
+                query.setIsChild(1);
+                instagramQueryRepository.save(query);
+                System.out.println(JSON.toJSONString(query));
+            }
+        }
+        return "success";
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String recursionFetchQueryWithUpdate(String end_cursor) {
-        do {
+        //do {
             try {
                 end_cursor = secondFetchWithUpdate(end_cursor);
-                Thread.sleep(1000 * 20);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return "fail";
             }
-        } while (end_cursor != "");
+        // } while (end_cursor != "");
         return "success";
     }
 
