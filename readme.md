@@ -56,3 +56,10 @@ ENGINE = INNODB,
 CHARACTER SET utf8mb4,
 COLLATE utf8mb4_0900_ai_ci;
 ~~~
+
+## 执行
+
+~~~
+http:127.0.0.1:8080/vultr/firstfetchquerywithupdate
+http:127.0.0.1:8080/vultr/recursionfetchquerywithupdate?end_cursor=
+~~~

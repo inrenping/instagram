@@ -17,4 +17,7 @@ public interface InstagramQueryRepository extends JpaRepository<InstagramQuery, 
 
     @Query(value = "from InstagramQuery t where t.userId = ?1 and t.type_name=?2")
     Page<InstagramQuery> findByUserIdTypeName(Long userId,String typeName,Pageable pageable);
+
+    @Query(value = "from InstagramQuery t where t.insId = ?1")
+    List<InstagramQuery> findByInsId(Long insId);
 }

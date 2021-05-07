@@ -147,6 +147,10 @@ public class VultrServiceImpl implements IVultrService {
         for (Edge_ edge : secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getEdges()) {
             System.out.println(edge.getNode().get__typename());
             if (edge.getNode().get__typename().equals("GraphImage")) {
+                List<InstagramQuery> list =instagramQueryRepository.findByInsId(edge.getNode().getId());
+                if(list.size() > 0){
+                    continue;
+                }
                 InstagramQuery query = new InstagramQuery();
                 query.setUserId(Long.parseLong(instagram_id));
                 query.setType_name(edge.getNode().get__typename());
@@ -177,7 +181,7 @@ public class VultrServiceImpl implements IVultrService {
     @Transactional(rollbackFor = Exception.class)
     public String thirdFetch(String shortcode) {
         try {
-            // Thread.sleep(1000 * 20);
+
             RestTemplate client = new RestTemplate();
             String uri = "https://www.instagram.com/p/" + shortcode + "/?__a=1";
             HttpHeaders headers = new HttpHeaders();
@@ -187,6 +191,7 @@ public class VultrServiceImpl implements IVultrService {
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity entity = new HttpEntity("", headers);
             System.out.println(uri);
+            Thread.sleep(1000 * 1);
             ResponseEntity<String> response = client.exchange(uri, HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception ex) {
@@ -202,6 +207,10 @@ public class VultrServiceImpl implements IVultrService {
         ThirdResponse thirdResponse = JSONObject.parseObject(third, ThirdResponse.class);
         if (thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children() != null) {
             for (Edge_ edge : thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children().getEdges()) {
+                List<InstagramQuery> list =instagramQueryRepository.findByInsId(edge.getNode().getId());
+                if(list.size() > 0){
+                    continue;
+                }
                 InstagramQuery query = new InstagramQuery();
                 query.setTaken_at_timestamp(thirdResponse.getGraphql().getShortcode_media().getTaken_at_timestamp());
                 query.setUserId(Long.parseLong(instagram_id));
@@ -228,14 +237,15 @@ public class VultrServiceImpl implements IVultrService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String recursionFetchQueryWithUpdate(String end_cursor) {
-        //do {
+        // do {
             try {
+                Thread.sleep(1000 * 3);
                 end_cursor = secondFetchWithUpdate(end_cursor);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return "fail";
             }
-        // } while (end_cursor != "");
+        // } while (end_cursor.length() == 0);
         return "success";
     }
 
@@ -245,7 +255,7 @@ public class VultrServiceImpl implements IVultrService {
         try {
             List<InstagramQuery> query = instagramQueryRepository.findAll();
             for (InstagramQuery ins : query) {
-                File file = downloadFile(ins.getDisplay_url(), String.valueOf(ins.getId()) + ".jpg");
+                File file = downloadFile(ins.getDisplay_url(), String.valueOf(ins.getInsId()) + ".jpg");
                 System.out.println(ins.getDisplay_url());
                 System.out.println(file.getName());
                 Thread.sleep(1000 * 3);
