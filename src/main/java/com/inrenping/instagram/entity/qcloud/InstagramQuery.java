@@ -18,16 +18,11 @@ public class InstagramQuery {
     private Long fileId;
     private Long locationId;
     private String locationName;
-    private String mark;
     private String remark;
     private Integer isChild;
     private Date createtime;
     private String endCursor;
     private Integer likeCount;
-
-    private Integer year;
-    private Integer month;
-    private Integer day;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -131,16 +126,6 @@ public class InstagramQuery {
     }
 
     @Basic
-    @Column(name = "MARK")
-    public String getMark() {
-        return mark;
-    }
-
-    public void setMark(String mark) {
-        this.mark = mark;
-    }
-
-    @Basic
     @Column(name = "REMARK")
     public String getRemark() {
         return remark;
@@ -188,41 +173,5 @@ public class InstagramQuery {
 
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
-    }
-
-    @Transient
-    public Integer getYear() {
-        Date date = new Date(this.taken_at_timestamp * 1000L);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.YEAR);
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
-    }
-
-    @Transient
-    public Integer getMonth() {
-        Date date = new Date(this.taken_at_timestamp * 1000L);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.MONTH) + 1;
-    }
-
-    public void setMonth(Integer month) {
-        this.month = month;
-    }
-
-    @Transient
-    public Integer getDay() {
-        Date date = new Date(this.taken_at_timestamp * 1000L);
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.DAY_OF_MONTH);
-    }
-
-    public void setDay(Integer day) {
-        this.day = day;
     }
 }

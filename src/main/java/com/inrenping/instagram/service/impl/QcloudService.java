@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Optional;
 
 @Service
 public class QcloudService implements IQcloudService {
@@ -24,12 +23,6 @@ public class QcloudService implements IQcloudService {
     }
 
     @Override
-    public Page<InstagramQuery> pageByUserIdTypeName(Long userId,String typeName, Pageable pageable) {
-        Page<InstagramQuery> page = instagramQueryRepository.findByUserIdTypeName(userId,typeName, pageable);
-        return page;
-    }
-
-    @Override
     public InstagramQuery detail(Long id) {
         InstagramQuery instagramQuery = instagramQueryRepository.findById(id).get();
         return instagramQuery;
@@ -37,8 +30,9 @@ public class QcloudService implements IQcloudService {
 
     @Override
     public File getFile(Long id) {
-        // File file = new File("D://instagram/" + id.toString() + ".jpg");
-        File file = new File("/var/www/instagram/instagram_files/" + id.toString() + ".jpg");
+        String baseUrl = "D://instagram/";
+        // String baseUrl = "/var/www/instagram/instagram_files/";
+         File file = new File(baseUrl + id.toString() + ".jpg");
         return file;
     }
 }
