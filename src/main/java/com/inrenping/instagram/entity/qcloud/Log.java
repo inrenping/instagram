@@ -1,13 +1,16 @@
 package com.inrenping.instagram.entity.qcloud;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name="T_LOG")
 public class Log {
     private long id;
-    private String httpHeader;
+    private String userAgent;
     private String ip;
     private Date createtime;
     private String remark;
@@ -24,13 +27,13 @@ public class Log {
     }
 
     @Basic
-    @Column(name="HTTP_HEADER")
-    public String getHttpHeader() {
-        return httpHeader;
+    @Column(name="USER_AGENT")
+    public String getUserAgent() {
+        return userAgent;
     }
 
-    public void setHttpHeader(String httpHeader) {
-        this.httpHeader = httpHeader;
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     @Basic

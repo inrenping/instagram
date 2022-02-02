@@ -13,7 +13,6 @@ public class RUtil {
         r.setData(object);
         return r;
     }
-
     public static R success(){
         return success(null);
     }

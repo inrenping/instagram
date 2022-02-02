@@ -147,8 +147,8 @@ public class VultrServiceImpl implements IVultrService {
         for (Edge_ edge : secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getEdges()) {
             System.out.println(edge.getNode().get__typename());
             if (edge.getNode().get__typename().equals("GraphImage")) {
-                List<InstagramQuery> list =instagramQueryRepository.findByInsId(edge.getNode().getId());
-                if(list.size() > 0){
+                List<InstagramQuery> list = instagramQueryRepository.findByInsId(edge.getNode().getId());
+                if (list.size() > 0) {
                     continue;
                 }
                 InstagramQuery query = new InstagramQuery();
@@ -181,7 +181,6 @@ public class VultrServiceImpl implements IVultrService {
     @Transactional(rollbackFor = Exception.class)
     public String thirdFetch(String shortcode) {
         try {
-
             RestTemplate client = new RestTemplate();
             String uri = "https://www.instagram.com/p/" + shortcode + "/?__a=1";
             HttpHeaders headers = new HttpHeaders();
@@ -207,8 +206,8 @@ public class VultrServiceImpl implements IVultrService {
         ThirdResponse thirdResponse = JSONObject.parseObject(third, ThirdResponse.class);
         if (thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children() != null) {
             for (Edge_ edge : thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children().getEdges()) {
-                List<InstagramQuery> list =instagramQueryRepository.findByInsId(edge.getNode().getId());
-                if(list.size() > 0){
+                List<InstagramQuery> list = instagramQueryRepository.findByInsId(edge.getNode().getId());
+                if (list.size() > 0) {
                     continue;
                 }
                 InstagramQuery query = new InstagramQuery();
@@ -238,13 +237,13 @@ public class VultrServiceImpl implements IVultrService {
     @Transactional(rollbackFor = Exception.class)
     public String recursionFetchQueryWithUpdate(String end_cursor) {
         // do {
-            try {
-                Thread.sleep(1000 * 3);
-                end_cursor = secondFetchWithUpdate(end_cursor);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return "fail";
-            }
+        try {
+            Thread.sleep(1000 * 3);
+            end_cursor = secondFetchWithUpdate(end_cursor);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "fail";
+        }
         // } while (end_cursor.length() == 0);
         return "success";
     }
@@ -252,17 +251,11 @@ public class VultrServiceImpl implements IVultrService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String download() {
-        try {
-            List<InstagramQuery> query = instagramQueryRepository.findAll();
-            for (InstagramQuery ins : query) {
-                File file = downloadFile(ins.getDisplay_url(), String.valueOf(ins.getInsId()) + ".jpg");
-                System.out.println(ins.getDisplay_url());
-                System.out.println(file.getName());
-                Thread.sleep(1000 * 3);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return ex.toString();
+        List<InstagramQuery> query = instagramQueryRepository.findAll();
+        for (InstagramQuery ins : query) {
+            File file = downloadFile(ins.getDisplay_url(), (ins.getInsId()) + ".jpg");
+            System.out.println(ins.getDisplay_url());
+            System.out.println(file.getName());
         }
         return "success";
     }
@@ -286,7 +279,7 @@ public class VultrServiceImpl implements IVultrService {
             OutputStream out = new FileOutputStream(file);
             int size = 0;
             byte[] b = new byte[2048];
-            //把输入流的文件读取到字节数据b中，然后输出到指定目录的文件
+            //把输入流的文件读取到字节数据 b 中，然后输出到指定目录的文件
             while ((size = bin.read(b)) != -1) {
                 out.write(b, 0, size);
             }
@@ -295,15 +288,12 @@ public class VultrServiceImpl implements IVultrService {
             out.close();
             System.out.println("文件下载成功！");
         } catch (MalformedURLException e) {
-            // TODO Auto-generated catch block
             System.out.println("文件下载失败！");
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.out.println("文件下载失败！");
-        } finally {
-            return file;
         }
+        return file;
     }
 }

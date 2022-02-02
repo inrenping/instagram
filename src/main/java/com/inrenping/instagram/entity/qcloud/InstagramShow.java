@@ -1,7 +1,12 @@
 package com.inrenping.instagram.entity.qcloud;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Entity
+@Data
+@Table(name = "T_INSTAGRAM_SHOW")
 public class InstagramShow {
     private long id;
     private long insId;

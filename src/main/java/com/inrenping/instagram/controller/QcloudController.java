@@ -1,6 +1,5 @@
 package com.inrenping.instagram.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.inrenping.instagram.entity.qcloud.InstagramQuery;
 import com.inrenping.instagram.entity.vo.R;
 import com.inrenping.instagram.service.impl.QcloudService;
@@ -13,11 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("qcloud")
+@CrossOrigin(value = "*")
 public class QcloudController {
 
     @Autowired
@@ -25,7 +23,6 @@ public class QcloudController {
 
     @RequestMapping(value = "/page", method = RequestMethod.GET)
     @ResponseBody
-    @CrossOrigin(value = "*")
     public R page(@RequestParam(name = "userId") Long userId,
                   @RequestParam(name = "pageNo") Integer pageNo,
                   @RequestParam(name = "pageSize") Integer pageSize) {
@@ -42,7 +39,6 @@ public class QcloudController {
 
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     @ResponseBody
-    @CrossOrigin(value = "*")
     public R detail(@RequestParam(name = "id") Long id) {
         try{
             InstagramQuery instagramQuery = qcloudService.detail(id);
@@ -54,12 +50,11 @@ public class QcloudController {
 
     @GetMapping(value = "/image", produces = MediaType.IMAGE_JPEG_VALUE)
     @ResponseBody
-    @CrossOrigin(value = "*")
     public byte[] image(@RequestParam(name = "id") Long id) throws Exception {
         File file = qcloudService.getFile(id);
         FileInputStream inputStream = new FileInputStream(file);
         byte[] bytes = new byte[inputStream.available()];
-        inputStream.read(bytes, 0, inputStream.available());
+        // inputStream.read(bytes, 0, inputStream.available());
         return bytes;
     }
 }

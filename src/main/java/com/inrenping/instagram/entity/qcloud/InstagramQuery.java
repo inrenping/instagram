@@ -1,9 +1,11 @@
 package com.inrenping.instagram.entity.qcloud;
 
+import lombok.Data;
+
 import javax.persistence.*;
-import java.util.Calendar;
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name = "T_INSTAGRAM_QUERY")
 public class InstagramQuery {
