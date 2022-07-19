@@ -6,13 +6,13 @@ public interface IVultrService {
      * 前十二张图片获取
      * @return
      */
-    String firstFetch();
+    String firstFetch(String id);
 
     /**
      * 前 12 张图片获取并写入
      * @return
      */
-    String firstFetchWithUpdate();
+    String firstFetchWithUpdate(String id);
 
     /**
      * 翻页获取

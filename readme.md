@@ -1,14 +1,12 @@
 ## Instagram
 
-下载 instagram 照片到本地，并提供访问图片列表接口。
+Download instagram post picture to local by instagram API,and provide API。
 
 ## todo
 
-- 保存图片到对象存储
+- save picture to oss
 
-- 提供出对应接口
-
-- shrio 认证
+- shrio auth
 
 ## api
 
@@ -22,11 +20,11 @@ https://www.instagram.com/p/22CLWqkTbgbAV/?__a=1
 https://instagram.com/graphql/query/?query_hash=d4e8ae69cb68f66329dcebe82fb69f6d&variables={%22shortcode%22:%22CLWqkTbgbAV%22}
 ```
 
-## 建表 SQL
+## caeate SQL
 
-## 执行
+## run
 
 ```
-http:127.0.0.1:8080/vultr/firstfetchquerywithupdate
-http:127.0.0.1:8080/vultr/recursionfetchquerywithupdate?end_cursor=
+curl http:127.0.0.1:8080/vultr/firstfetchquerywithupdate
+curl http:127.0.0.1:8080/vultr/recursionfetchquerywithupdate?end_cursor=
 ```

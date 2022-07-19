@@ -24,9 +24,9 @@ public class VultrController {
     @RequestMapping(value = "/firstfetchquery", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R firstFetchQuery() {
+    public R firstFetchQuery(@RequestParam(name = "id") String id) {
         try {
-            String result = vultrService.firstFetch();
+            String result = vultrService.firstFetch(id);
             return RUtil.success(result);
         } catch (Exception ex) {
             return RUtil.error(1,ex.getMessage());
@@ -36,9 +36,9 @@ public class VultrController {
     @RequestMapping(value = "/firstfetchquerywithupdate", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R firstFetchQueryWithUpdate() {
+    public R firstFetchQueryWithUpdate(@RequestParam(name = "id") String id) {
         try {
-            String result= vultrService.firstFetchWithUpdate();
+            String result= vultrService.firstFetchWithUpdate(id);
             return RUtil.success(result);
         } catch (Exception ex) {
             return RUtil.error(1,ex.getMessage());

@@ -41,10 +41,10 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String firstFetch() {
+    public String firstFetch(String id) {
         try {
             RestTemplate client = new RestTemplate();
-            String uri = "https://www.instagram.com/inrenping/?__a=1";
+            String uri = String.format("https://www.instagram.com/%d/?__a=1&__d=dis",id);
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
             cookies.add(instagram_cookie);
@@ -62,9 +62,9 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String firstFetchWithUpdate() {
+    public String firstFetchWithUpdate(String id) {
         try {
-            String first = firstFetch();
+            String first = firstFetch(id);
             FirstResponse firstResponse = JSONObject.parseObject(first, FirstResponse.class);
             for (Edge_ edge : firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getEdges()) {
                 if (edge.getNode().get__typename().equals("GraphImage")) {
