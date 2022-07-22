@@ -24,72 +24,92 @@ public class VultrController {
     @RequestMapping(value = "/firstfetchquery", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R firstFetchQuery(@RequestParam(name = "id") String id) {
+    public R firstFetchQuery(@RequestParam(name = "id") String id,
+                             @RequestParam(name = "cookie") String cookie,
+                             @RequestParam(name = "userAgent") String userAgent) {
         try {
-            String result = vultrService.firstFetch(id);
+            String result = vultrService.firstFetch(id, cookie, userAgent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
     @RequestMapping(value = "/firstfetchquerywithupdate", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R firstFetchQueryWithUpdate(@RequestParam(name = "id") String id) {
+    public R firstFetchQueryWithUpdate(@RequestParam(name = "id") String id,
+                                       @RequestParam(name = "instagramId") String instagramId,
+                                       @RequestParam(name = "cookie") String cookie,
+                                       @RequestParam(name = "user-agent") String user_agent) {
         try {
-            String result= vultrService.firstFetchWithUpdate(id);
+            String result = vultrService.firstFetchWithUpdate(id, instagramId, cookie, user_agent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
     @RequestMapping(value = "/secondfetchquery", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R secondFetchQuery(@RequestParam(name = "end_cursor") String end_cursor) {
+    public R secondFetchQuery(@RequestParam(name = "end_cursor") String end_cursor,
+                              @RequestParam(name = "instagramId") String instagramId,
+                              @RequestParam(name = "instagramQueryId") String instagramQueryId,
+                              @RequestParam(name = "cookie") String cookie,
+                              @RequestParam(name = "userAgent") String userAgent
+    ) {
         try {
-            String result = vultrService.secondFetch(end_cursor);
+            String result = vultrService.secondFetch(end_cursor, instagramId, instagramQueryId, cookie, userAgent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
     @RequestMapping(value = "/secondfetchquerywithupdate", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R secondFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor) {
+    public R secondFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor,
+                                        @RequestParam(name = "instagramId") String instagramId,
+                                        @RequestParam(name = "instagramQueryId") String instagramQueryId,
+                                        @RequestParam(name = "cookie") String cookie,
+                                        @RequestParam(name = "userAgent") String userAgent) {
         try {
-            String result= vultrService.secondFetchWithUpdate(end_cursor);
+            String result = vultrService.secondFetchWithUpdate(end_cursor, instagramId, instagramQueryId, cookie, userAgent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
     @RequestMapping(value = "/thirdfetchquery", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R thirdFetchQuery(@RequestParam(name = "shortcode") String shortcode){
+    public R thirdFetchQuery(@RequestParam(name = "shortcode") String shortcode,
+                             @RequestParam(name = "cookie") String cookie,
+                             @RequestParam(name = "userAgent") String userAgent) {
         try {
-            String result= vultrService.thirdFetch(shortcode);
+            String result = vultrService.thirdFetch(shortcode, cookie, userAgent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
     @RequestMapping(value = "/recursionfetchquerywithupdate", method = RequestMethod.GET)
     @ResponseBody
     @CrossOrigin(value = "*")
-    public R recursionFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor) {
+    public R recursionFetchQueryWithUpdate(@RequestParam(name = "end_cursor") String end_cursor,
+                                           @RequestParam(name = "instagramId") String instagramId,
+                                           @RequestParam(name = "instagramQueryId") String instagramQueryId,
+                                           @RequestParam(name = "cookie") String cookie,
+                                           @RequestParam(name = "userAgent") String userAgent) {
         try {
-            String result= vultrService.recursionFetchQueryWithUpdate(end_cursor);
+            String result = vultrService.recursionFetchQueryWithUpdate(end_cursor, instagramId, instagramQueryId, cookie, userAgent);
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 
@@ -101,7 +121,7 @@ public class VultrController {
             String result = vultrService.download();
             return RUtil.success(result);
         } catch (Exception ex) {
-            return RUtil.error(1,ex.getMessage());
+            return RUtil.error(1, ex.getMessage());
         }
     }
 

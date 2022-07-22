@@ -4,41 +4,55 @@ public interface IVultrService {
 
     /**
      * 前十二张图片获取
+     * @param id
+     * @param cookie
+     * @param userAgent
      * @return
      */
-    String firstFetch(String id);
+    String firstFetch(String id,String cookie,String userAgent);
 
     /**
      * 前 12 张图片获取并写入
      * @return
      */
-    String firstFetchWithUpdate(String id);
+    String firstFetchWithUpdate(String user_id,String instagramId,String cookie,String user_agent);
 
     /**
      * 翻页获取
      * @param end_cursor
      * @return
      */
-    String secondFetch(String end_cursor);
+    String secondFetch(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent);
 
     /**
      * 翻页获取并写入
      * @param end_cursor
+     * @param instagramId
+     * @param instagramQueryId
+     * @param cookie
+     * @param userAgent
      * @return
      */
-    String secondFetchWithUpdate(String end_cursor);
+    String secondFetchWithUpdate(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent);
 
-    String thirdFetch(String shortcode);
-
-    String thirdFetchWithUpdate(String shortcode);
+    /**
+     *
+     * @param shortcode
+     * @param instagramId
+     * @return
+     */
+    String thirdFetchWithUpdate(String shortcode,String instagramId,String cookie,String userAgent);
 
     /**
      * 自动翻页获取并写入
-     * @param end_cursor
+     * @param shortcode
+     * @param cookie
+     * @param userAgent
      * @return
      */
-    String recursionFetchQueryWithUpdate(String end_cursor);
+    String thirdFetch(String shortcode,String cookie,String userAgent);
 
+    String recursionFetchQueryWithUpdate(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent);
     /**
      * 批量下载
      * @return

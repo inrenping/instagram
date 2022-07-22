@@ -2,13 +2,7 @@
 
 Download instagram post picture to local by instagram API,and provide API。
 
-## todo
-
-- save picture to oss
-
-- shrio auth
-
-## api
+## Instagram API
 
 ```
 https://instagram.com/inrenping/?__a=1
@@ -19,8 +13,6 @@ https://www.instagram.com/p/22CLWqkTbgbAV/?__a=1
 
 https://instagram.com/graphql/query/?query_hash=d4e8ae69cb68f66329dcebe82fb69f6d&variables={%22shortcode%22:%22CLWqkTbgbAV%22}
 ```
-
-## caeate SQL
 
 ## run
 

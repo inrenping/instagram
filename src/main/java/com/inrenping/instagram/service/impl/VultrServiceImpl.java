@@ -25,30 +25,30 @@ import java.util.*;
 @Service
 public class VultrServiceImpl implements IVultrService {
 
-    @Value("${instagram.query_id}")
-    private String instagram_query_id;
-    @Value("${instagram.query_hash}")
-    private String instagram_query_hash;
-    @Value("${instagram.id}")
-    private String instagram_id;
-    @Value("${instagram.cookie}")
-    private String instagram_cookie;
-    @Value("${instagram.user-agent}")
-    private String instagram_user_agent;
+//    @Value("${instagram.query_id}")
+//    private String instagram_query_id;
+//    @Value("${instagram.query_hash}")
+//    private String instagram_query_hash;
+//    @Value("${instagram.id}")
+//    private String instagram_id;
+//    @Value("${instagram.cookie}")
+//    private String instagram_cookie;
+//    @Value("${instagram.user-agent}")
+//    private String instagram_user_agent;
 
     @Autowired
     InstagramQueryRepository instagramQueryRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String firstFetch(String id) {
+    public String firstFetch(String id,String cookie,String userAgent) {
         try {
             RestTemplate client = new RestTemplate();
             String uri = String.format("https://www.instagram.com/%d/?__a=1&__d=dis",id);
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
-            cookies.add(instagram_cookie);
-            headers.add("User-Agent", instagram_user_agent);
+            cookies.add(cookie);
+            headers.add("User-Agent", userAgent);
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
             System.out.println(uri);
@@ -62,14 +62,14 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String firstFetchWithUpdate(String id) {
+    public String firstFetchWithUpdate(String user_id,String instagramId,String cookie,String userAgent) {
         try {
-            String first = firstFetch(id);
+            String first = firstFetch(user_id,cookie,userAgent);
             FirstResponse firstResponse = JSONObject.parseObject(first, FirstResponse.class);
             for (Edge_ edge : firstResponse.getGraphql().getUser().getEdge_owner_to_timeline_media().getEdges()) {
                 if (edge.getNode().get__typename().equals("GraphImage")) {
                     InstagramQuery query = new InstagramQuery();
-                    query.setUserId(Long.parseLong(instagram_id));
+                    query.setUserId(Long.parseLong(instagramId));
                     query.setType_name(edge.getNode().get__typename());
                     query.setInsId(edge.getNode().getId());
                     query.setShort_code(edge.getNode().getShortcode());
@@ -89,7 +89,7 @@ public class VultrServiceImpl implements IVultrService {
                     if (edge.getNode().getEdge_sidecar_to_children() != null) {
                         for (Edge_ edge_child : edge.getNode().getEdge_sidecar_to_children().getEdges()) {
                             InstagramQuery query = new InstagramQuery();
-                            query.setUserId(Long.parseLong(instagram_id));
+                            query.setUserId(Long.parseLong(instagramId));
                             query.setType_name(edge_child.getNode().get__typename());
                             query.setInsId(edge_child.getNode().getId());
                             query.setShort_code(edge_child.getNode().getShortcode());
@@ -114,20 +114,20 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String secondFetch(String end_cursor) {
+    public String secondFetch(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent) {
         try {
             Thread.sleep(1000 * 10);
             RestTemplate client = new RestTemplate();
             String uri = "https://instagram.com/graphql/query/";
             UriComponents builder = UriComponentsBuilder.fromHttpUrl(uri)
-                    .queryParam("query_id", instagram_query_id)
-                    .queryParam("id", instagram_id)
+                    .queryParam("query_id", instagramQueryId)
+                    .queryParam("id", instagramId)
                     .queryParam("first", 50)
                     .queryParam("after", end_cursor).build();
             List<String> cookies = new ArrayList<>();
-            cookies.add(instagram_cookie);
+            cookies.add(cookie);
             HttpHeaders headers = new HttpHeaders();
-            headers.add("User-Agent", instagram_user_agent);
+            headers.add("User-Agent", userAgent);
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity entity = new HttpEntity("", headers);
             System.out.println(builder.toUriString());
@@ -141,18 +141,18 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String secondFetchWithUpdate(String end_cursor) {
-        String second = secondFetch(end_cursor);
+    public String secondFetchWithUpdate(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent) {
+        String second = secondFetch(end_cursor,instagramId,instagramQueryId,cookie,userAgent);
         SecondResponse secondResponse = JSONObject.parseObject(second, SecondResponse.class);
         for (Edge_ edge : secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getEdges()) {
-            System.out.println(edge.getNode().get__typename());
+            // System.out.println(edge.getNode().get__typename());
             if (edge.getNode().get__typename().equals("GraphImage")) {
                 List<InstagramQuery> list = instagramQueryRepository.findByInsId(edge.getNode().getId());
                 if (list.size() > 0) {
                     continue;
                 }
                 InstagramQuery query = new InstagramQuery();
-                query.setUserId(Long.parseLong(instagram_id));
+                query.setUserId(Long.parseLong(instagramId));
                 query.setType_name(edge.getNode().get__typename());
                 query.setInsId(edge.getNode().getId());
                 query.setShort_code(edge.getNode().getShortcode());
@@ -171,7 +171,7 @@ public class VultrServiceImpl implements IVultrService {
                 instagramQueryRepository.save(query);
                 System.out.println(JSON.toJSONString(query));
             } else if (edge.getNode().get__typename().equals("GraphSidecar")) {
-                thirdFetchWithUpdate(edge.getNode().getShortcode());
+                thirdFetchWithUpdate(edge.getNode().getShortcode(),instagramId,cookie,userAgent);
             }
         }
         return secondResponse.getData().getUser().getEdge_owner_to_timeline_media().getPage_info().getEnd_cursor();
@@ -179,14 +179,14 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String thirdFetch(String shortcode) {
+    public String thirdFetch(String shortcode,String cookie,String userAgent) {
         try {
             RestTemplate client = new RestTemplate();
             String uri = "https://www.instagram.com/p/" + shortcode + "/?__a=1";
             HttpHeaders headers = new HttpHeaders();
             List<String> cookies = new ArrayList<>();
-            cookies.add(instagram_cookie);
-            headers.add("User-Agent", instagram_user_agent);
+            cookies.add(cookie);
+            headers.add("User-Agent", userAgent);
             headers.put(HttpHeaders.COOKIE, cookies);
             HttpEntity entity = new HttpEntity("", headers);
             System.out.println(uri);
@@ -201,8 +201,8 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String thirdFetchWithUpdate(String shortcode) {
-        String third = thirdFetch(shortcode);
+    public String thirdFetchWithUpdate(String shortcode,String instagramId,String cookie,String userAgent) {
+        String third = thirdFetch(shortcode,cookie,userAgent);
         ThirdResponse thirdResponse = JSONObject.parseObject(third, ThirdResponse.class);
         if (thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children() != null) {
             for (Edge_ edge : thirdResponse.getGraphql().getShortcode_media().getEdge_sidecar_to_children().getEdges()) {
@@ -212,7 +212,7 @@ public class VultrServiceImpl implements IVultrService {
                 }
                 InstagramQuery query = new InstagramQuery();
                 query.setTaken_at_timestamp(thirdResponse.getGraphql().getShortcode_media().getTaken_at_timestamp());
-                query.setUserId(Long.parseLong(instagram_id));
+                query.setUserId(Long.parseLong(instagramId));
                 query.setType_name(edge.getNode().get__typename());
                 query.setInsId(edge.getNode().getId());
                 query.setShort_code(edge.getNode().getShortcode());
@@ -235,11 +235,11 @@ public class VultrServiceImpl implements IVultrService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String recursionFetchQueryWithUpdate(String end_cursor) {
+    public String recursionFetchQueryWithUpdate(String end_cursor,String instagramId,String instagramQueryId,String cookie,String userAgent) {
         // do {
         try {
             Thread.sleep(1000 * 3);
-            end_cursor = secondFetchWithUpdate(end_cursor);
+            end_cursor = secondFetchWithUpdate(end_cursor,instagramId,instagramQueryId,cookie,userAgent);
         } catch (Exception ex) {
             ex.printStackTrace();
             return "fail";
